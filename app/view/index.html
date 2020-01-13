@@ -1,0 +1,132 @@
+<?php
+$hostUrl = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'];
+$sorting = (isset($_GET['key']) && isset($_GET['sort'])) ? '&key='.$_GET['key'].'&sort='.$_GET['sort'] : null;
+$pagination = (isset($_GET['page'])) ? 'page='.$_GET['page'].'&' : null;
+$admin = (isset($_SESSION['admin'])) ? $_SESSION['admin'] : null
+?>
+<div class="col-sm-8">
+    <?php
+    if (isset($_SESSION['flash'])) { ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="text-align: center">
+            <strong><?php echo $_SESSION['flash'] ?></strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <?php
+        unset($_SESSION['flash']);
+    } ?>
+    <table class="table table-hover">
+        <thead>
+            <th>
+                <?php $sort = (isset($_GET['key']) && $_GET['key'] == 'username' && $_GET['sort'] == 'asc') ? 'desc' : 'asc' ?>
+                <a href="<?php echo $hostUrl ?>/task/?<?php echo $pagination ?>key=username&sort=<?php echo $sort ?>">
+                    Username
+                </a>
+                <?php
+                    if (isset($_GET['key']) && $_GET['key'] == 'username') {
+                        if (isset($_GET['key']) && $_GET['key'] == 'username' && $sort == 'asc') {
+                            echo '<span style="float: right"><i class="fa fa-chevron-down"></i></span>';
+                        } else {
+                            echo '<span style="float: right"><i class="fa fa-chevron-up"></i></span>';
+                        }
+                    }
+                ?>
+            </th>
+            <th>
+                <?php $sort = (isset($_GET['key']) && $_GET['key'] == 'email' && $_GET['sort'] == 'asc') ? 'desc' : 'asc' ?>
+                <a href="<?php echo $hostUrl ?>/task/?<?php echo $pagination ?>key=email&sort=<?php echo $sort ?>">
+                    Email
+                </a>
+                <?php
+                    if (isset($_GET['key']) && $_GET['key'] == 'email') {
+                        if ($sort == 'asc') {
+                            echo '<span style="float: right"><i class="fa fa-chevron-down"></i></span>';
+                        } else {
+                            echo '<span style="float: right"><i class="fa fa-chevron-up"></i></span>';
+                        }
+                    }
+                ?>
+            </th>
+            <th>Description</th>
+            <th>
+                <?php $sort = (isset($_GET['key']) && $_GET['key'] == 'status' && $_GET['sort'] == 'asc') ? 'desc' : 'asc' ?>
+                <a href="<?php echo $hostUrl ?>/task/?<?php echo $pagination ?>key=status&sort=<?php echo $sort ?>">
+                    Status
+                </a>
+                <?php
+                if (isset($_GET['key']) && $_GET['key'] == 'status') {
+                    if ($sort == 'asc') {
+                        echo '<span style="float: right"><i class="fa fa-chevron-down"></i></span>';
+                    } else {
+                        echo '<span style="float: right"><i class="fa fa-chevron-up"></i></span>';
+                    }
+                }
+                ?>
+            </th>
+            <th>Admin Edited</th>
+            <?php if ($admin) echo "<th>Action</th>"; ?>
+        </thead>
+        <tbody>
+            <?php
+                foreach ($this->tasks as $task) {
+                    echo "<tr>";
+                    echo "<td>".$task->username."</td>";
+                    echo "<td>".$task->email."</td>";
+                    echo "<td>".$task->description."</td>";
+                    if ($task->status) {
+                        echo "<td><i class='fa fa-check-square-o'></i></td>";
+                    } else {
+                        echo "<td></td>";
+                    }
+                    if ($task->edit_admin) {
+                        echo "<td><i class='fa fa-check-square-o'></i></td>";
+                    } else {
+                        echo "<td></td>";
+                    }
+
+                    if ($admin) echo "<td><a href='../admin/edit/?id=".$task->id."'><i class='fa fa-edit'></i></a></td>";
+                    echo "</tr>";
+                }
+            ?>
+        </tbody>
+    </table>
+
+    <br><br>
+
+    <?php if ($this->totalPage > 1) { ?>
+    <nav style="float: right">
+        <ul class="pagination">
+            <li class="page-item <?php if ($this->page == 1) echo 'disabled' ?>">
+                <a class="page-link" href=<?php echo $hostUrl.'/task/?page='.($this->page - 1).$sorting ?> >Previous</a>
+            </li>
+            <?php
+                for ($i = 1; $i <= $this->totalPage; $i++) {
+                    if ($this->page == $i) {
+                        echo '<li class="page-item active">';
+                    } else {
+                        echo '<li class="page-item">';
+                    }
+                    echo '<a class="page-link" href='.$hostUrl.'/task/?page='.$i.$sorting.'>'.$i.'</a>';
+                    echo '</li>';
+                }
+            ?>
+            <li class="page-item <?php if ($this->page == $this->totalPage) echo 'disabled' ?>">
+                <a class="page-link" href=<?php echo $hostUrl.'/task/?page='.($this->page + 1).$sorting ?>>Next</a>
+            </li>
+        </ul>
+    </nav>
+    <?php } ?>
+</div>
+
+<div class="col-sm-4">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="../task/all">All tasks</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="../task/new">New task</a>
+        </li>
+        <li class="nav-item">
+    </ul>
+</div>
